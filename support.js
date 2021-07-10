@@ -27,11 +27,11 @@ function emitcloseparen (block) {
 }
 
 function emitopenbrace (block) {
-    return emitOpen (block, "{");
+    return emitOpen (block ? block : 0, "{");
 }
 
 function emitclosebrace (block) {
-    return emitClose (block, "}");
+    return emitClose (block ? block : 0, "}");
 }
 
 function emitOpen (block, c) {
@@ -55,7 +55,7 @@ function emitClose (block, c) {
     let b = asNumber (block);
     if (b < prevblock) {
 	while (b < prevblock) {
-	    s = '\n' + s + c;
+	    s = spaces (b) + s + c + '\n';
 	    b += 1;
 	}
 	return '\n' + spaces (block) + s;
@@ -65,7 +65,8 @@ function emitClose (block, c) {
 }
 
 function shiftblock (block) {
-    scopeModify ('block', block);
+    let b = block ? block : 0
+    scopeModify ('block', b);
     return "";
 }
 
