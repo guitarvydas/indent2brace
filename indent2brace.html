@@ -10,10 +10,8 @@ textarea {
 
 <h1>Indentation to Braces Transpiler Workbench</h1>
 
-<br>
-<label for="grammar">grammar:</label>
-<br>
-<textarea id="grammar" name="a" rows="10" cols="90" placeholder="grammar" style="background-color:oldlace;">
+<p style="display:none">grammar:</p>
+<textarea id="grammar" name="a" rows="1" cols="90" placeholder="grammar" style="background-color:oldlace;display:none">
 TOBLOCK {
 
 main = line+
@@ -26,13 +24,10 @@ toEOL = ~newline any
 newline = "\n"
 spc = " "
 }
-
 </textarea>
 
-<br>
-<label for="semantics">semantics:</label>
-<br>
-<textarea id="semantics" rows="10" cols="90" placeholder="semantics" style="background-color:oldlace;">
+<p style="display:none">semantics:</p>
+<textarea id="semantics" rows="10" cols="90" placeholder="semantics" style="background-color:oldlace;display:none;">
 main [@lines] = {{ resetBlock (); }} [[${lines}${emitclosebrace (0)}]]
 line [@block @spc @chars @nl] = [[${emitopenbrace (block ? block : 0)}${emitclosebrace (block ? block : 0)}${spaces (block ? block : 0)}${chars}\n${shiftblock (block ? block : 0)}]]
 indent [indents] = [[${convertIndentationToBlockNumber (indents)}]]
@@ -43,10 +38,8 @@ newline [c] = [[${c}]]
 spc [c] = [[${c}]]
 </textarea>
 
-<br>
-<label for="source">source:</label>
-<br>
-<textarea id="source" name="source" rows="10" cols="90" placeholder="notation test" style="background-color:oldlace;">
+<p>source:</p>
+<textarea id="source" name="source" rows="17" cols="90" placeholder="notation test" style="background-color:oldlace;">
 getter (rid):
   result <= c.ns[name]
     where deconstruct rid => (_, ns, name)
@@ -97,10 +90,8 @@ must not already have a value:
   component.ns[name] === no-value
 </textarea>
 
-<br>
-<label for="transpiled">transpiled:</label>
-<br>
-<textarea id="transpiled" name="transpiled" rows="10" cols="90" placeholder="transpiled"  readonly style="background-color:whitesmoke;">
+<p>transpiled:</p>
+<textarea id="transpiled" name="transpiled" rows="17" cols="90" placeholder="transpiled"  readonly style="background-color:whitesmoke;">
 </textarea>
 <br>
 <br>
@@ -116,8 +107,8 @@ must not already have a value:
 
 
   function generate () {
-      let notationSource = document.getElementById('source').value;
       let scnGrammar = document.getElementById('grammar').value;
+      let notationSource = document.getElementById('source').value;
       let semantics = document.getElementById('semantics').value;
       let generatedSCNSemantics = transpiler (semantics, glueGrammar, "_glue", glueSemantics);
 

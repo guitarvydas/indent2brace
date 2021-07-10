@@ -31,7 +31,7 @@ function emitopenbrace (block) {
 }
 
 function emitclosebrace (block) {
-    return emitClose (block, "}\n");
+    return emitClose (block, "}");
 }
 
 function emitOpen (block, c) {
@@ -43,7 +43,7 @@ function emitOpen (block, c) {
 	    s = s + c;
 	    b -= 1;
 	}
-	return spaces (block) + s + '\n';
+	return spaces (block) + s + ' ';
     } else {
 	return '';
     }
@@ -58,7 +58,7 @@ function emitClose (block, c) {
 	    s = s + c;
 	    b += 1;
 	}
-	return spaces (block) + s + '\n';
+	return spaces (block) + s + ' ';
     } else {
 	return '';
     }
