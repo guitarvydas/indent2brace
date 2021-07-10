@@ -43,7 +43,7 @@ function emitOpen (block, c) {
 	    s = s + c;
 	    b -= 1;
 	}
-	return spaces (block) + s + ' ';
+	return spaces (block) + s + '\n';
     } else {
 	return '';
     }
@@ -55,10 +55,10 @@ function emitClose (block, c) {
     let b = asNumber (block);
     if (b < prevblock) {
 	while (b < prevblock) {
-	    s = s + c;
+	    s = '\n' + s + c;
 	    b += 1;
 	}
-	return spaces (block) + s + ' ';
+	return '\n' + spaces (block) + s;
     } else {
 	return '';
     }
