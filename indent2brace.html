@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+textarea {
+}
+</style>
+</head>
+<body>
+
+<h1>Indentation to Braces Transpiler Workbench</h1>
+
+<br>
+<label for="grammar">grammar:</label>
+<br>
+<textarea id="grammar" name="a" rows="10" cols="90" placeholder="grammar" style="background-color:oldlace;">
+TOBLOCK {
+
+main = line+
+line = indent? spc? toEOL* newline+
+indent = (indentDoubleSpace | indentChar)+
+indentChar = ("#" | "*" | "\t")
+indentDoubleSpace = "  "
+toEOL = ~newline any
+
+newline = "\n"
+spc = " "
+}
+
+</textarea>
+
+<br>
+<label for="semantics">semantics:</label>
+<br>
+<textarea id="semantics" rows="10" cols="90" placeholder="semantics" style="background-color:oldlace;">
+main [@lines] = {{ resetBlock (); }} [[${lines}${emitclosebrace (0)}]]
+line [@block @spc @chars @nl] = [[${emitopenbrace (block ? block : 0)}${emitclosebrace (block ? block : 0)}${spaces (block ? block : 0)}${chars}\n${shiftblock (block ? block : 0)}]]
+indent [indents] = [[${convertIndentationToBlockNumber (indents)}]]
+indentChar [c] = [[${c}]]
+indentDoubleSpace [cc] = [[.]]
+toEOL [c] = [[${c}]]
+newline [c] = [[${c}]] 
+spc [c] = [[${c}]]
+</textarea>
+
+<br>
+<label for="source">source:</label>
+<br>
+<textarea id="source" name="source" rows="10" cols="90" placeholder="notation test" style="background-color:oldlace;">
+getter (rid):
+  result <= c.ns[name]
+    where deconstruct rid => (_, ns, name)
+    synonym c, component
+    where component = @ea (rid)
+
+setter (rid val):
+  c.ns[name] <= val
+    where deconstruct rid => (_, ns, name)
+    synonym ns, namespace, "namespace within component"
+    synonym c, component
+    where component = @ea (rid)
+    design rule "must not already have a value"
+
+def (rid):
+  @define all paths (rid)
+  where:
+    define all paths (rid):
+      ea (rid)
+
+where:
+  ea (rid):
+    ea-raw (rid) | design rule "must be a component" => result
+
+  ea-raw (rid):
+    typecase (rid.path):
+    case string: lookup (rid.path) => result
+      design rule (result) "must not be empty"
+    case _:
+      @getter (ref) => child
+      child.static => result
+	before 
+	  where ref = rid.path
+	  synonym ref, component-reference, "recursive reference to a component"
+	  design rule (ref) "must contain a component namespace reference"
+
+
+
+design rules:
+
+rid must contain a component namespace reference (rid):
+  "c" === rid.ns
+
+must be a component:
+  typeof (in) === "component"
+
+must not already have a value:
+  component.ns[name] === no-value
+</textarea>
+
+<br>
+<label for="transpiled">transpiled:</label>
+<br>
+<textarea id="transpiled" name="transpiled" rows="10" cols="90" placeholder="transpiled"  readonly style="background-color:whitesmoke;">
+</textarea>
+<br>
+<br>
+<p id="status" > READY </p>
+
+<br>
+<button onclick="generate ()">Generate</button>
+<script src="../scnwb/ohm.js"></script>
+<script src="../scnwb/glue.js"></script>
+<script src="../scnwb/scope.js"></script>
+<script src="support.js"></script>
+<script>
+
+
+  function generate () {
+      let notationSource = document.getElementById('source').value;
+      let scnGrammar = document.getElementById('grammar').value;
+      let semantics = document.getElementById('semantics').value;
+      let generatedSCNSemantics = transpiler (semantics, glueGrammar, "_glue", glueSemantics);
+
+      _ruleInit();
+      try {
+	  document.getElementById('status').innerHTML = "FAILED";
+	  let semObject = eval('(' + generatedSCNSemantics + ')');
+	  document.getElementById ("transpiled").value = semObject;
+	  let tr = transpiler(notationSource, scnGrammar, "_glue", semObject);
+	  document.getElementById('transpiled').value = tr;
+	  document.getElementById('status').innerHTML = "OK";
+      }
+       catch (err) {
+	  document.getElementById('status').innerHTML = err;
+       }	   
+  }
+  </script>
+</body>
+</html>
+
